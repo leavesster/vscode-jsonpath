@@ -1,5 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
+import * as fs from 'fs';
+import * as path from 'path';
 import { PerformanceNodeTiming } from 'perf_hooks';
 import * as vscode from 'vscode';
 
@@ -28,7 +30,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     if (!panel) {
         panel = vscode.window.createWebviewPanel("jsonpath", "JSONPath", column || vscode.ViewColumn.Two, getWebviewOptions(context.extensionUri));
-        panel.webview.html = getWebviewContent();
+        panel.webview.html = getWebviewContent(panel.webview, context);
     } else {
         panel.reveal();
     }
@@ -48,28 +50,38 @@ function getWebviewOptions(extensionUri: vscode.Uri): vscode.WebviewOptions {
 		enableScripts: true,
 
 		// And restrict the webview to only loading content from our extension's `media` directory.
-		localResourceRoots: [vscode.Uri.joinPath(extensionUri, 'media')]
+		localResourceRoots: [vscode.Uri.joinPath(extensionUri, 'public')]
 	};
 }
 
-function getWebviewContent() {
+function getWebviewContent(webview: vscode.Webview, context: vscode.ExtensionContext) {
+    const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'public', 'build', 'bundle.js'));
+
+    // Local path to css styles
+    const styleResetPath = vscode.Uri.joinPath(context.extensionUri, 'public', 'global.css');
+    const stylesPathMainPath = vscode.Uri.joinPath(context.extensionUri, 'public', 'build', 'bundle.css');
+
+    // Uri to load styles into webview
+    const stylesResetUri = webview.asWebviewUri(styleResetPath);
+    const stylesMainUri = webview.asWebviewUri(stylesPathMainPath);
+
     return `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset='utf-8'>
+            <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
 
-        <!--
-            Use a content security policy to only allow loading images from https or from our extension directory,
-            and only allow scripts that have a specific nonce.
-        -->
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>JSONPath generator</title>
 
-        <title>Cat Coding</title>
-    </head>
-    <body>
-        <h1>JSON Path generator</h1>
-    </body>
-    </html>
+            <link rel='stylesheet' href='${stylesResetUri}'>
+            <link rel='stylesheet' href='${stylesMainUri}'>
+
+            <script defer src='${scriptUri}'></script>
+        </head>
+
+        <body>
+        </body>
+        </html>
     `;
 }
