@@ -15,6 +15,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     console.log("Extension 'json-path-generator' is now active!");
 
+    const content = vscode.window.activeTextEditor?.document.getText();
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
@@ -30,7 +31,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     if (!panel) {
         panel = vscode.window.createWebviewPanel("jsonpath", "JSONPath", column || vscode.ViewColumn.Two, getWebviewOptions(context.extensionUri));
-        panel.webview.html = getWebviewContent(panel.webview, context);
+        panel.webview.html = getWebviewContent(panel.webview, context, content || "{json: true}");
     } else {
         panel.reveal();
     }
@@ -54,7 +55,7 @@ function getWebviewOptions(extensionUri: vscode.Uri): vscode.WebviewOptions {
 	};
 }
 
-function getWebviewContent(webview: vscode.Webview, context: vscode.ExtensionContext) {
+function getWebviewContent(webview: vscode.Webview, context: vscode.ExtensionContext, content: string) {
     const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'public', 'build', 'bundle.js'));
 
     // Local path to css styles
@@ -73,6 +74,7 @@ function getWebviewContent(webview: vscode.Webview, context: vscode.ExtensionCon
             <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
 
             <title>JSONPath generator</title>
+            <script>window.json = JSON.parse(${JSON.stringify(content)})</script>
 
             <link rel='stylesheet' href='${stylesResetUri}'>
             <link rel='stylesheet' href='${stylesMainUri}'>
