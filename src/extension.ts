@@ -16,6 +16,11 @@ export function activate(context: vscode.ExtensionContext) {
     console.log("Extension 'json-path-generator' is now active!");
 
     const content = vscode.window.activeTextEditor?.document.getText();
+    vscode.workspace.onDidChangeTextDocument((e) => {
+        if (e.document === vscode.window.activeTextEditor?.document) {
+            console.log("change:", e.document.getText());
+        }
+    });
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
