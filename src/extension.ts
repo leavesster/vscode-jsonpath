@@ -1,22 +1,19 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import * as fs from 'fs';
-import * as path from 'path';
-import { PerformanceNodeTiming } from 'perf_hooks';
 import * as vscode from 'vscode';
 
 
 let panel : vscode.WebviewPanel | undefined;
 
 function generateWebViewPanel(context: vscode.ExtensionContext) {
+    const content = vscode.window.activeTextEditor?.document.getText();
     if (panel) {
         panel.reveal();
         return;
     }
-    const column = vscode.window.activeTextEditor
-    ? vscode.window.activeTextEditor.viewColumn
-    : undefined;
-    const content = vscode.window.activeTextEditor?.document.getText();
+    // const column = vscode.window.activeTextEditor
+    // ? vscode.window.activeTextEditor.viewColumn
+    // : undefined;
 
     panel = vscode.window.createWebviewPanel("jsonpath", "JSONPath", vscode.ViewColumn.Two, getWebviewOptions(context.extensionUri));
     panel.webview.html = getWebviewContent(panel.webview, context, content || '');
@@ -36,7 +33,12 @@ export function activate(context: vscode.ExtensionContext) {
     const content = vscode.window.activeTextEditor?.document.getText();
     vscode.workspace.onDidChangeTextDocument((e) => {
         if (e.document === vscode.window.activeTextEditor?.document) {
-            console.log("change:", e.document.getText());
+            try {
+                const json = JSON.parse(e.document.getText());
+                panel?.webview.postMessage({ json });
+            } catch (error) {
+                console.log("Not a valid JSON");   
+            }
         }
     });
 	// The command has been defined in the package.json file
@@ -89,7 +91,16 @@ function getWebviewContent(webview: vscode.Webview, context: vscode.ExtensionCon
             <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
 
             <title>JSONPath generator</title>
-            <script>window.json = JSON.parse(${JSON.stringify(content)})</script>
+            <script>
+                window.addEventListener('load', event => {
+                    window.json.set(JSON.parse(${JSON.stringify(content)}));
+                });
+                window.addEventListener('message', event => {
+
+                    const message = event.data; // The JSON data our extension sent
+                    window.json.set(message.json);
+                });
+            </script>
 
             <link rel='stylesheet' href='${stylesResetUri}'>
             <link rel='stylesheet' href='${stylesMainUri}'>
