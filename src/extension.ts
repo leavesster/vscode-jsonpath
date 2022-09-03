@@ -8,6 +8,24 @@ import * as vscode from 'vscode';
 
 let panel : vscode.WebviewPanel | undefined;
 
+function generateWebViewPanel(context: vscode.ExtensionContext) {
+    if (panel) {
+        panel.reveal();
+        return;
+    }
+    const column = vscode.window.activeTextEditor
+    ? vscode.window.activeTextEditor.viewColumn
+    : undefined;
+    const content = vscode.window.activeTextEditor?.document.getText();
+
+    panel = vscode.window.createWebviewPanel("jsonpath", "JSONPath", vscode.ViewColumn.Two, getWebviewOptions(context.extensionUri));
+    panel.webview.html = getWebviewContent(panel.webview, context, content || '');
+
+    panel.onDidDispose(() => {
+        panel = undefined;
+    });
+}
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -24,23 +42,15 @@ export function activate(context: vscode.ExtensionContext) {
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('jsonpath.helloWorld', () => {
+	let disposable = vscode.commands.registerCommand('jsonPath.helloWorld', () => {
 		// The code you place here will be executed every time your command is executed
 		// Display a message box to the user
 		vscode.window.showInformationMessage('Hello World from JSONPath!');
 	});
 
-    const column = vscode.window.activeTextEditor
-    ? vscode.window.activeTextEditor.viewColumn
-    : undefined;
-
-    if (!panel) {
-        panel = vscode.window.createWebviewPanel("jsonpath", "JSONPath", column || vscode.ViewColumn.Two, getWebviewOptions(context.extensionUri));
-        panel.webview.html = getWebviewContent(panel.webview, context, content || "{json: true}");
-    } else {
-        panel.reveal();
-    }
-
+    context.subscriptions.push(vscode.commands.registerCommand("jsonPath.showView", () => {
+        generateWebViewPanel(context);
+    }));
 
 
 	context.subscriptions.push(disposable);

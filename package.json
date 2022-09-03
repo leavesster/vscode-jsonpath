@@ -17,10 +17,28 @@
   "contributes": {
     "commands": [
       {
-        "command": "jsonpath.helloWorld",
+        "command": "jsonPath.helloWorld",
         "title": "Hello World"
+      },
+      {
+        "command": "jsonPath.showView",
+        "title": "Show JSONPath Preview",
+        "category": "json",
+        "icon": {
+          "light": "media/icon.svg",
+          "dark": "media/icon_reverse.svg"
+        }
       }
-    ]
+    ],
+    "menus": {
+        "editor/title": [
+            {
+              "when": "resourceLangId == json",
+              "command": "jsonPath.showView",
+              "group": "navigation"
+            }
+          ] 
+    }
   },
   "scripts": {
     "vscode:prepublish": "pnpm run compile",
