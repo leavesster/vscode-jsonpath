@@ -7,8 +7,12 @@ let panel : vscode.WebviewPanel | undefined;
 
 function generateWebViewPanel(context: vscode.ExtensionContext) {
     const content = vscode.window.activeTextEditor?.document.getText();
-    if (panel) {
-        panel.reveal();
+
+    if (panel?.visible) {
+        panel.webview.html = getWebviewContent(panel.webview, context, content || '');
+        return;
+    } else if (panel) {
+        // do nothing
         return;
     }
     // const column = vscode.window.activeTextEditor
@@ -30,17 +34,19 @@ export function activate(context: vscode.ExtensionContext) {
 
     console.log("Extension 'json-path-generator' is now active!");
 
-    const content = vscode.window.activeTextEditor?.document.getText();
     vscode.workspace.onDidChangeTextDocument((e) => {
-        if (e.document === vscode.window.activeTextEditor?.document) {
-            try {
-                const json = JSON.parse(e.document.getText());
-                panel?.webview.postMessage({ json });
-            } catch (error) {
-                console.log("Not a valid JSON");   
-            }
+        try {
+            const json = JSON.parse(e.document.getText());
+            panel?.webview.postMessage({ json });
+        } catch (error) {
+            console.log("Not a valid JSON");   
         }
     });
+
+    vscode.window.onDidChangeActiveTextEditor((e) => {
+        e?.document.languageId === 'json' && generateWebViewPanel(context);
+    });
+
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
@@ -52,6 +58,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(vscode.commands.registerCommand("jsonPath.showView", () => {
         generateWebViewPanel(context);
+        panel?.reveal();
     }));
 
 
