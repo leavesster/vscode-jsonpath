@@ -2,10 +2,13 @@
   "name": "jsonpath",
   "displayName": "JSONPath",
   "description": "generate jsonPath for json",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "license": "MIT",
   "publisher": "leavesster",
-  "repository": "https://github.com/leavesster/vscode-jsonpath.git",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/leavesster/vscode-jsonpath.git"
+  },
   "engines": {
     "vscode": "^1.70.0"
   },
