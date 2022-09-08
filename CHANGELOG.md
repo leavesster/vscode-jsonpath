@@ -4,7 +4,11 @@ All notable changes to the "jsonpath" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
-## [0.0.3] - 2020-09-05
+## [0.0.4] - 2022-09-08
+
+- fix auto show when open a json file
+
+## [0.0.3] - 2022-09-05
 
 - add icon
 

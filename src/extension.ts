@@ -5,22 +5,22 @@ import * as vscode from 'vscode';
 
 let panel : vscode.WebviewPanel | undefined;
 
-function generateWebViewPanel(context: vscode.ExtensionContext) {
-    const content = vscode.window.activeTextEditor?.document.getText();
+function updateWebViewPanel(context: vscode.ExtensionContext) {
 
-    if (panel?.visible) {
+    console.log("updateWebViewPanel and panel: ", !!panel);
+    if (panel) {
+        const content = vscode.window.activeTextEditor?.document.getText();
         panel.webview.html = getWebviewContent(panel.webview, context, content || '');
         return;
-    } else if (panel) {
-        // do nothing
-        return;
     }
-    // const column = vscode.window.activeTextEditor
-    // ? vscode.window.activeTextEditor.viewColumn
-    // : undefined;
+}
+
+function createWebviewPanel(context: vscode.ExtensionContext) {
+    const content = vscode.window.activeTextEditor?.document.getText();
 
     panel = vscode.window.createWebviewPanel("jsonpath", "JSONPath", vscode.ViewColumn.Two, getWebviewOptions(context.extensionUri));
     panel.webview.html = getWebviewContent(panel.webview, context, content || '');
+    console.log("panel created");
 
     panel.onDidDispose(() => {
         panel = undefined;
@@ -34,35 +34,33 @@ export function activate(context: vscode.ExtensionContext) {
 
     console.log("Extension 'json-path-generator' is now active!");
 
-    vscode.workspace.onDidChangeTextDocument((e) => {
+    context.subscriptions.push(vscode.workspace.onDidChangeTextDocument((e) => {
         try {
             const json = JSON.parse(e.document.getText());
             panel?.webview.postMessage({ json });
         } catch (error) {
             console.log("Not a valid JSON");   
         }
-    });
+    }));
 
-    vscode.window.onDidChangeActiveTextEditor((e) => {
-        e?.document.languageId === 'json' && generateWebViewPanel(context);
-    });
+    context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor((e) => {
+        e?.document.languageId === 'json' && updateWebViewPanel(context);
+    }));
 
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('jsonPath.helloWorld', () => {
+	context.subscriptions.push(vscode.commands.registerCommand('jsonPath.helloWorld', () => {
 		// The code you place here will be executed every time your command is executed
 		// Display a message box to the user
 		vscode.window.showInformationMessage('Hello World from JSONPath!');
-	});
+	}));
 
     context.subscriptions.push(vscode.commands.registerCommand("jsonPath.showView", () => {
-        generateWebViewPanel(context);
+        console.log("showView");
+        createWebviewPanel(context);
         panel?.reveal();
     }));
-
-
-	context.subscriptions.push(disposable);
 }
 
 // this method is called when your extension is deactivated
