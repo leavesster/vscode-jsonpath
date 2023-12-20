@@ -17,17 +17,22 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:jsonPath.helloWorld",
     "jsonPath.showView",
     "onLanguage:json"
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "configuration": {
+        "title": "JSONPath",
+        "properties": {
+            "jsonpath.showJsonPathList": {
+                "type": "boolean",
+                "default": false,
+                "description": "Show JSONPath List"
+            }
+        }
+    },
     "commands": [
-      {
-        "command": "jsonPath.helloWorld",
-        "title": "Hello World"
-      },
       {
         "command": "jsonPath.showView",
         "title": "Show JSONPath Preview",

@@ -33,13 +33,23 @@ export function activate(context: vscode.ExtensionContext) {
 
 
     console.log("Extension 'json-path-generator' is now active!");
-
+    const showJsonPathList = vscode.workspace.getConfiguration('jsonpath').get('showJsonPathList');
+    console.log("showJsonPathList: ", showJsonPathList);
     context.subscriptions.push(vscode.workspace.onDidChangeTextDocument((e) => {
         try {
             const json = JSON.parse(e.document.getText());
-            panel?.webview.postMessage({ json });
+            panel?.webview.postMessage({ json, showPathList: showJsonPathList });
         } catch (error) {
             console.log("Not a valid JSON");   
+        }
+    }));
+
+    context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(event => {
+        console.log("onDidChangeConfiguration", event);
+        if (event.affectsConfiguration('jsonpath.showJsonPathList')) {
+            const newValue = vscode.workspace.getConfiguration('jsonpath').get('showJsonPathList');
+            console.log("jsonpath.showJsonPathList changed: ", newValue);
+            panel?.webview.postMessage({ showPathList: newValue });
         }
     }));
 
@@ -102,7 +112,12 @@ function getWebviewContent(webview: vscode.Webview, context: vscode.ExtensionCon
                 window.addEventListener('message', event => {
 
                     const message = event.data; // The JSON data our extension sent
-                    window.json.set(message.json);
+                    if (message.json) {
+                        window.json.set(message.json);
+                    }
+                    if (message.showPathList !== undefined) {
+                        window.showPathList.set(message.showPathList);
+                    }
                 });
             </script>
 
