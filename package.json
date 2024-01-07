@@ -2,7 +2,7 @@
   "name": "jsonpath",
   "displayName": "JSONPath",
   "description": "generate jsonPath for json",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "icon": "media/jsonpath.png",
   "license": "MIT",
   "publisher": "leavesster",
