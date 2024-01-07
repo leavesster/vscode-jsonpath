@@ -82,6 +82,7 @@ function getWebviewOptions(extensionUri: vscode.Uri): vscode.WebviewOptions {
 
 function getWebviewContent(webview: vscode.Webview, context: vscode.ExtensionContext, content: string) {
     const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'public', 'build', 'bundle.js'));
+    const showJsonPathList = vscode.workspace.getConfiguration('jsonpath').get('showJsonPathList');
 
     // Local path to css styles
     const styleResetPath = vscode.Uri.joinPath(context.extensionUri, 'public', 'global.css');
@@ -101,6 +102,7 @@ function getWebviewContent(webview: vscode.Webview, context: vscode.ExtensionCon
             <script>
                 window.addEventListener('load', event => {
                     window.json.set(JSON.parse(${JSON.stringify(content)}));
+                    window.showPathList.set(${showJsonPathList});
                 });
                 window.addEventListener('message', event => {
 
