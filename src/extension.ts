@@ -7,7 +7,6 @@ let panel : vscode.WebviewPanel | undefined;
 
 function updateWebViewPanel(context: vscode.ExtensionContext) {
 
-    console.log("updateWebViewPanel and panel: ", !!panel);
     if (panel) {
         const content = vscode.window.activeTextEditor?.document.getText();
         panel.webview.html = getWebviewContent(panel.webview, context, content || '');
@@ -20,7 +19,6 @@ function createWebviewPanel(context: vscode.ExtensionContext) {
 
     panel = vscode.window.createWebviewPanel("jsonpath", "JSONPath", vscode.ViewColumn.Two, getWebviewOptions(context.extensionUri));
     panel.webview.html = getWebviewContent(panel.webview, context, content || '');
-    console.log("panel created");
 
     panel.onDidDispose(() => {
         panel = undefined;
@@ -31,24 +29,20 @@ function createWebviewPanel(context: vscode.ExtensionContext) {
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
-
-    console.log("Extension 'json-path-generator' is now active!");
     const showJsonPathList = vscode.workspace.getConfiguration('jsonpath').get('showJsonPathList');
-    console.log("showJsonPathList: ", showJsonPathList);
     context.subscriptions.push(vscode.workspace.onDidChangeTextDocument((e) => {
         try {
             const json = JSON.parse(e.document.getText());
             panel?.webview.postMessage({ json, showPathList: showJsonPathList });
         } catch (error) {
+            // TODO: show a error dialog
             console.log("Not a valid JSON");   
         }
     }));
 
     context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(event => {
-        console.log("onDidChangeConfiguration", event);
         if (event.affectsConfiguration('jsonpath.showJsonPathList')) {
             const newValue = vscode.workspace.getConfiguration('jsonpath').get('showJsonPathList');
-            console.log("jsonpath.showJsonPathList changed: ", newValue);
             panel?.webview.postMessage({ showPathList: newValue });
         }
     }));
@@ -67,7 +61,6 @@ export function activate(context: vscode.ExtensionContext) {
 	}));
 
     context.subscriptions.push(vscode.commands.registerCommand("jsonPath.showView", () => {
-        console.log("showView");
         createWebviewPanel(context);
         panel?.reveal();
     }));
