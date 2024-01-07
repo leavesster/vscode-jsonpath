@@ -4,6 +4,10 @@ All notable changes to the "jsonpath" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.0.5] - 2024-01-07
+
+- add a configuration `jsonpath.showJsonPathList` to control auto show all json path list.
+
 ## [0.0.4] - 2022-09-08
 
 - fix auto show when open a json file
