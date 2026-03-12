@@ -56,6 +56,7 @@
   "scripts": {
     "package": "pnpm vsce package --no-dependencies",
     "publish": "pnpm vsce publish --no-dependencies",
+    "release": "pnpm run compile && pnpm run publish",
     "vscode:prepublish": "pnpm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
@@ -64,6 +65,7 @@
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
+    "@vscode/vsce": "^3.7.1",
     "@types/vscode": "^1.70.0",
     "@types/glob": "^7.2.0",
     "@types/mocha": "^9.1.1",
