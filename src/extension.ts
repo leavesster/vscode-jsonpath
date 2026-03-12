@@ -1,6 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import { buildWebviewContent } from './webviewContent';
 
 
 let panel : vscode.WebviewPanel | undefined;
@@ -92,38 +93,11 @@ function getWebviewContent(webview: vscode.Webview, context: vscode.ExtensionCon
     const stylesResetUri = webview.asWebviewUri(styleResetPath);
     const stylesMainUri = webview.asWebviewUri(stylesPathMainPath);
 
-    return `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset='utf-8'>
-            <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
-            <title>JSONPath generator</title>
-            <script>
-                window.addEventListener('load', event => {
-                    window.json.set(JSON.parse(${JSON.stringify(content)}));
-                    window.showPathList.set(${showJsonPathList});
-                });
-                window.addEventListener('message', event => {
-
-                    const message = event.data; // The JSON data our extension sent
-                    if (message.json) {
-                        window.json.set(message.json);
-                    }
-                    if (message.showPathList !== undefined) {
-                        window.showPathList.set(message.showPathList);
-                    }
-                });
-            </script>
-
-            <link rel='stylesheet' href='${stylesResetUri}'>
-            <link rel='stylesheet' href='${stylesMainUri}'>
-
-            <script defer src='${scriptUri}'></script>
-        </head>
-
-        <body>
-        </body>
-        </html>
-    `;
+    return buildWebviewContent({
+        content,
+        scriptUri: scriptUri.toString(),
+        showJsonPathList,
+        stylesMainUri: stylesMainUri.toString(),
+        stylesResetUri: stylesResetUri.toString(),
+    });
 }
