@@ -4,6 +4,10 @@ All notable changes to the "jsonpath" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.0.9] - 2026-03-12
+
+- render embedded HTML-like strings safely in the JSONPath preview without breaking the tree layout.
+
 ## [0.0.8] - 2026-03-12
 
 - bump patch version.
