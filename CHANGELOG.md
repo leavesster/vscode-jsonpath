@@ -4,6 +4,10 @@ All notable changes to the "jsonpath" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.0.8] - 2026-03-12
+
+- bump patch version.
+
 ## [0.0.7] - 2024-01-13
 
 - fix path list error when json value updated.
